@@ -25,7 +25,7 @@ jobs:
       run: npm install -g cdktf-cli
 
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore MyTerraformStack.csproj
 
     - name: Synthesize Terraform configuration
       run: cdktf synth
