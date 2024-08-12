@@ -33,13 +33,17 @@ jobs:
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
 
     - name: Initialize Terraform
       run: terraform init
+      working-directory: cdktf.out/stacks/hello-coffee-terraform
 
     - name: Plan Terraform
       run: terraform plan
+      working-directory: cdktf.out/stacks/hello-coffee-terraform
 
     - name: Apply Terraform
       if: github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
+      working-directory: cdktf.out/stacks/hello-coffee-terraform
