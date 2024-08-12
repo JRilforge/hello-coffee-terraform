@@ -24,6 +24,12 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Generate module and provider bindings
+      run: npx cdktf-cli get
+
+    - name: generate terraform script
+      run: cdktf synth
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
       with:
