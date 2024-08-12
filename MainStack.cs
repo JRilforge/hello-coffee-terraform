@@ -26,7 +26,7 @@ public class MainStack : TerraformStack
 
         var resourceGroup = new ResourceGroup(this, "resourceGroup", new ResourceGroupConfig
         {
-            Location = "West Europe",
+            Location = "Central US",
             Name = "helloCoffeeResourceGroup"
         });
 
@@ -57,7 +57,7 @@ public class MainStack : TerraformStack
 
         var cosmosDbSqlDatabase = new CosmosdbSqlDatabase(this, "cosmosDbSqlDatabase", new CosmosdbSqlDatabaseConfig
         {
-            Name = "example-database",
+            Name = "helloCoffeeDb",
             ResourceGroupName = resourceGroup.Name,
             AccountName = cosmosDbAccount.Name
         });
