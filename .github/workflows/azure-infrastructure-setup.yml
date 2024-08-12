@@ -16,18 +16,18 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
       with:
-        node-version: '14'
+        dotnet-version: '6.0.x'
+
+    - name: Install CDKTF CLI
+      run: npm install -g cdktf-cli
 
     - name: Install dependencies
-      run: npm install
+      run: dotnet restore
 
-    - name: Generate module and provider bindings
-      run: npx cdktf-cli get
-
-    - name: generate terraform script
+    - name: Synthesize Terraform configuration
       run: cdktf synth
 
     - name: Set up Terraform
@@ -36,19 +36,16 @@ jobs:
         terraform_version: 1.0.0
 
     - name: Authenticate to Azure
-      uses: azure/login@v2
+      uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Initialize Terraform
       run: terraform init
-      working-directory: ./cdktf.out/stacks/hello-coffee-terraform
 
     - name: Plan Terraform
       run: terraform plan
-      working-directory: ./cdktf.out/stacks/hello-coffee-terraform
 
     - name: Apply Terraform
       if: github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
-      working-directory: ./cdktf.out/stacks/hello-coffee-terraform
