@@ -25,7 +25,7 @@ public class MainStack : TerraformStack
         // Cosmos DB
         var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
         {
-            Name = "helloCoffeeDb",
+            Name = "hellocoffeedb",
             Location = "West Europe",
             ResourceGroupName = "myResourceGroup",
             OfferType = "Standard",
