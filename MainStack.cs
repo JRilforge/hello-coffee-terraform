@@ -1,4 +1,5 @@
 // https://github.com/hashicorp/terraform-cdk-action
+// AZURE_CREDENTIALS - https://success.skyhighsecurity.com/Skyhigh_CASB/Skyhigh_CASB_Sanctioned_Apps/Skyhigh_CASB_for_Office_365/Service_Principal_with_a_Secret_Key_and_Azure_API_Integration#:~:text=An%20Azure%20Service%20Principal%20is,and%20use%20it%20to%20authenticate.
 
 using HashiCorp.Cdktf.Providers.Azurerm.Provider;
 
