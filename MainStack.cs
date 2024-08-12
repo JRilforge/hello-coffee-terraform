@@ -13,6 +13,7 @@ using HashiCorp.Cdktf.Providers.Azurerm.CosmosdbAccount;
 using HashiCorp.Cdktf.Providers.Azurerm.AppService;
 using HashiCorp.Cdktf.Providers.Azurerm.AppServicePlan;
 using HashiCorp.Cdktf.Providers.Azurerm.CosmosdbSqlDatabase;
+using HashiCorp.Cdktf.Providers.Azurerm.ResourceGroup;
 
 public class MainStack : TerraformStack
 {
@@ -23,12 +24,18 @@ public class MainStack : TerraformStack
             Features = new AzurermProviderFeatures()
         });
 
+        var resourceGroup = new ResourceGroup(this, "resourceGroup", new ResourceGroupConfig
+        {
+            Location = "West Europe",
+            Name = "helloCoffeeResourceGroup"
+        });
+
         // Cosmos DB
         var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
         {
             Name = "hellocoffeedb",
-            Location = "West Europe",
-            ResourceGroupName = "myResourceGroup",
+            Location = resourceGroup.Location,
+            ResourceGroupName = resourceGroup.Name,
             OfferType = "Standard",
             Kind = "GlobalDocumentDB",
 
@@ -42,7 +49,7 @@ public class MainStack : TerraformStack
             {
                 new CosmosdbAccountGeoLocation
                 {
-                    Location = "West Europe",
+                    Location = resourceGroup.Location,
                     FailoverPriority = 0
                 }
             }
@@ -51,7 +58,7 @@ public class MainStack : TerraformStack
         var cosmosDbSqlDatabase = new CosmosdbSqlDatabase(this, "cosmosDbSqlDatabase", new CosmosdbSqlDatabaseConfig
         {
             Name = "example-database",
-            ResourceGroupName = "myResourceGroup",
+            ResourceGroupName = resourceGroup.Name,
             AccountName = cosmosDbAccount.Name
         });
 
@@ -59,8 +66,8 @@ public class MainStack : TerraformStack
         var webAppServicePlan = new AppServicePlan(this, "WebAppServicePlan", new AppServicePlanConfig
         {
             Name = "webAppServicePlan",
-            Location = "West Europe",
-            ResourceGroupName = "myResourceGroup",
+            Location = resourceGroup.Location,
+            ResourceGroupName = resourceGroup.Name,
             Sku = new AppServicePlanSku
             {
                 Tier = "Standard",
@@ -72,8 +79,8 @@ public class MainStack : TerraformStack
         var webApp = new AppService(this, "WebApp", new AppServiceConfig
         {
             Name = "HelloCoffeeWebApp",
-            Location = "West Europe",
-            ResourceGroupName = "myResourceGroup",
+            Location = resourceGroup.Location,
+            ResourceGroupName = resourceGroup.Name,
             AppServicePlanId = webAppServicePlan.Id,
             SiteConfig = new AppServiceSiteConfig
             {
@@ -85,8 +92,8 @@ public class MainStack : TerraformStack
         var apiAppServicePlan = new AppServicePlan(this, "ApiAppServicePlan", new AppServicePlanConfig
         {
             Name = "apiAppServicePlan",
-            Location = "West Europe",
-            ResourceGroupName = "myResourceGroup",
+            Location = resourceGroup.Location,
+            ResourceGroupName = resourceGroup.Name,
             Sku = new AppServicePlanSku
             {
                 Tier = "Standard",
@@ -98,8 +105,8 @@ public class MainStack : TerraformStack
         var apiApp = new AppService(this, "ApiApp", new AppServiceConfig
         {
             Name = "myApiApp",
-            Location = "West Europe",
-            ResourceGroupName = "myResourceGroup",
+            Location = resourceGroup.Location,
+            ResourceGroupName = resourceGroup.Name,
             AppServicePlanId = apiAppServicePlan.Id,
             SiteConfig = new AppServiceSiteConfig
             {
