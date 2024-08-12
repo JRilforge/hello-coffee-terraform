@@ -12,6 +12,7 @@ using HashiCorp.Cdktf.Providers.Azurerm;
 using HashiCorp.Cdktf.Providers.Azurerm.CosmosdbAccount;
 using HashiCorp.Cdktf.Providers.Azurerm.AppService;
 using HashiCorp.Cdktf.Providers.Azurerm.AppServicePlan;
+using HashiCorp.Cdktf.Providers.Azurerm.CosmosdbSqlDatabase;
 
 public class MainStack : TerraformStack
 {
@@ -30,9 +31,12 @@ public class MainStack : TerraformStack
             ResourceGroupName = "myResourceGroup",
             OfferType = "Standard",
             Kind = "GlobalDocumentDB",
+
             ConsistencyPolicy = new CosmosdbAccountConsistencyPolicy
             {
-                ConsistencyLevel = "Session"
+                ConsistencyLevel = "BoundedStaleness",
+                MaxIntervalInSeconds = 300,
+                MaxStalenessPrefix = 100000
             },
             GeoLocation = new[]
             {
@@ -42,6 +46,13 @@ public class MainStack : TerraformStack
                     FailoverPriority = 0
                 }
             }
+        });
+
+        var cosmosDbSqlDatabase = new CosmosdbSqlDatabase(this, "cosmosDbSqlDatabase", new CosmosdbSqlDatabaseConfig
+        {
+            Name = "example-database",
+            ResourceGroupName = "myResourceGroup",
+            AccountName = cosmosDbAccount.Name
         });
 
         // App Service Plan for Web App
