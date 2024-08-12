@@ -1,5 +1,6 @@
 // https://github.com/hashicorp/terraform-cdk-action
 // AZURE_CREDENTIALS - https://success.skyhighsecurity.com/Skyhigh_CASB/Skyhigh_CASB_Sanctioned_Apps/Skyhigh_CASB_for_Office_365/Service_Principal_with_a_Secret_Key_and_Azure_API_Integration#:~:text=An%20Azure%20Service%20Principal%20is,and%20use%20it%20to%20authenticate.
+// create resource group - https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal
 
 using HashiCorp.Cdktf.Providers.Azurerm.Provider;
 
@@ -59,7 +60,7 @@ public class MainStack : TerraformStack
         // Web App
         var webApp = new AppService(this, "WebApp", new AppServiceConfig
         {
-            Name = "myWebApp",
+            Name = "HelloCoffeeWebApp",
             Location = "West Europe",
             ResourceGroupName = "myResourceGroup",
             AppServicePlanId = webAppServicePlan.Id,
