@@ -27,39 +27,7 @@ public class MainStack : TerraformStack
         var resourceGroup = new ResourceGroup(this, "resourceGroup", new ResourceGroupConfig
         {
             Location = "West Europe",
-            Name = "helloCoffeeResourceGroup1"
-        });
-
-        // Cosmos DB
-        var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
-        {
-            Name = "hellocoffeedb1",
-            Location = "Central US",
-            ResourceGroupName = resourceGroup.Name,
-            OfferType = "Standard",
-            Kind = "GlobalDocumentDB",
-
-            ConsistencyPolicy = new CosmosdbAccountConsistencyPolicy
-            {
-                ConsistencyLevel = "BoundedStaleness",
-                MaxIntervalInSeconds = 300,
-                MaxStalenessPrefix = 100000
-            },
-            GeoLocation = new[]
-            {
-                new CosmosdbAccountGeoLocation
-                {
-                    Location = "Central US",
-                    FailoverPriority = 0
-                }
-            }
-        });
-
-        var cosmosDbSqlDatabase = new CosmosdbSqlDatabase(this, "cosmosDbSqlDatabase", new CosmosdbSqlDatabaseConfig
-        {
-            Name = "example-database",
-            ResourceGroupName = resourceGroup.Name,
-            AccountName = cosmosDbAccount.Name
+            Name = "helloCoffeeResourceGroup"
         });
 
         // App Service Plan for Web App
@@ -124,6 +92,39 @@ public class MainStack : TerraformStack
         new TerraformOutput(this, "ApiAppUrl", new TerraformOutputConfig
         {
             Value = apiApp.DefaultSiteHostname
+        });
+
+
+        // Cosmos DB
+        var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
+        {
+            Name = "hellocoffeedb",
+            Location = "Central US",
+            ResourceGroupName = resourceGroup.Name,
+            OfferType = "Standard",
+            Kind = "GlobalDocumentDB",
+
+            ConsistencyPolicy = new CosmosdbAccountConsistencyPolicy
+            {
+                ConsistencyLevel = "BoundedStaleness",
+                MaxIntervalInSeconds = 300,
+                MaxStalenessPrefix = 100000
+            },
+            GeoLocation = new[]
+            {
+                new CosmosdbAccountGeoLocation
+                {
+                    Location = "Central US",
+                    FailoverPriority = 0
+                }
+            }
+        });
+
+        var cosmosDbSqlDatabase = new CosmosdbSqlDatabase(this, "cosmosDbSqlDatabase", new CosmosdbSqlDatabaseConfig
+        {
+            Name = "example-database",
+            ResourceGroupName = resourceGroup.Name,
+            AccountName = cosmosDbAccount.Name
         });
     }
 }
