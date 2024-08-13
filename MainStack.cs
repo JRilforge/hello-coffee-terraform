@@ -96,7 +96,7 @@ public class MainStack : TerraformStack
             {
                 ApplicationStack = new LinuxWebAppSiteConfigApplicationStack()
                 {
-                    DotnetVersion = "v8.0"
+                    DotnetVersion = "8.0"
                 }
             },
             AppSettings = new Dictionary<string, string>
@@ -117,7 +117,7 @@ public class MainStack : TerraformStack
             Location = resourceGroup.Location,
             SiteConfig = new AppServiceSlotSiteConfig
             {
-                DotnetFrameworkVersion = "v8.0"
+                DotnetFrameworkVersion = "8.0"
             }
         });
 
