@@ -40,13 +40,13 @@ public class MainStack : TerraformStack
         var resourceGroup = new ResourceGroup(this, "resourceGroup", new ResourceGroupConfig
         {
             Location = "West Europe",
-            Name = "helloCoffeeResGroup"
+            Name = "helloCoffeeResourceGroup"
         });
 
         // Cosmos DB
         var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
         {
-            Name = "hellocoffeeshopdb",
+            Name = "hellocoffeedb",
             Location = "Central US",
             ResourceGroupName = resourceGroup.Name,
             OfferType = "Standard",
@@ -112,7 +112,7 @@ public class MainStack : TerraformStack
         
         var webApiDeploymentSlot = new LinuxWebAppSlot(this, "webApiDeploymentSlot", new LinuxWebAppSlotConfig
         {
-            Name = "production",
+            Name = "staging",
             AppServiceId = apiApp.Id,
             SiteConfig = new LinuxWebAppSlotSiteConfig
             {
@@ -161,7 +161,7 @@ public class MainStack : TerraformStack
         // Add deployment slot for web api
         var webAppDeploymentSlot = new LinuxWebAppSlot(this, "webAppDeploymentSlot", new LinuxWebAppSlotConfig
         {
-            Name = "production",
+            Name = "staging",
             AppServiceId = webApp.Id,
             SiteConfig = new LinuxWebAppSlotSiteConfig
             {
