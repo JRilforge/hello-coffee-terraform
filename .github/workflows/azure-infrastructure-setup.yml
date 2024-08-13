@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+env:
+  TF_VAR_playwrightUserPassword: ${{ secrets.PLAYWRIGHT_USER_PASSWORD }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
