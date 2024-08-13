@@ -3,6 +3,7 @@
 // create resource group - https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal
 
 using HashiCorp.Cdktf.Providers.Azurerm.Provider;
+using HashiCorp.Cdktf.Providers.Azurerm.ServicePlan;
 
 namespace MyTerraformStack;
 
@@ -17,6 +18,7 @@ using HashiCorp.Cdktf.Providers.Azurerm.ResourceGroup;
 using HashiCorp.Cdktf.Providers.Azurerm.AppServiceSlot;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using HashiCorp.Cdktf.Providers.Azurerm.LinuxWebApp;
 
 public class MainStack : TerraformStack
 {
@@ -72,30 +74,30 @@ public class MainStack : TerraformStack
             AccountName = cosmosDbAccount.Name
         });
 
-        // App Service Plan for API App
-        var apiAppServicePlan = new AppServicePlan(this, "ApiAppServicePlan", new AppServicePlanConfig
+        // Service Plan for API App
+        var apiAppServicePlan = new ServicePlan(this, "ApiAppServicePlan", new ServicePlanConfig
         {
             Name = "apiAppServicePlan",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
-            Sku = new AppServicePlanSku
-            {
-                Tier = "Standard",
-                Size = "S1"
-            }
+            OsType = "Linux",
+            SkuName = "P1v2"
         });
 
         // API App
-        var apiApp = new AppService(this, "ApiApp", new AppServiceConfig
+        var apiApp = new LinuxWebApp(this, "ApiApp", new LinuxWebAppConfig
         {
             Name = "HelloCoffeeWebApi",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
-            AppServicePlanId = apiAppServicePlan.Id,
+            ServicePlanId = apiAppServicePlan.Id,
             DependsOn = new[] { cosmosDbSqlDatabase },
-            SiteConfig = new AppServiceSiteConfig
+            SiteConfig = new LinuxWebAppSiteConfig
             {
-                DotnetFrameworkVersion = "v8.0"
+                ApplicationStack = new LinuxWebAppSiteConfigApplicationStack()
+                {
+                    DotnetVersion = "v8.0"
+                }
             },
             AppSettings = new Dictionary<string, string>
             {
@@ -119,30 +121,30 @@ public class MainStack : TerraformStack
             }
         });
 
-        // App Service Plan for Web App
-        var webAppServicePlan = new AppServicePlan(this, "WebAppServicePlan", new AppServicePlanConfig
+        // Service Plan for Web App
+        var webAppServicePlan = new ServicePlan(this, "WebAppServicePlan", new ServicePlanConfig
         {
             Name = "webAppServicePlan",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
-            Sku = new AppServicePlanSku
-            {
-                Tier = "Standard",
-                Size = "S1"
-            }
+            OsType = "Linux",
+            SkuName = "P1v2"
         });
 
         // Web App
-        var webApp = new AppService(this, "WebApp", new AppServiceConfig
+        var webApp = new LinuxWebApp(this, "WebApp", new LinuxWebAppConfig
         {
             Name = "HelloCoffeeWebApp",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
-            AppServicePlanId = webAppServicePlan.Id,
+            ServicePlanId = apiAppServicePlan.Id,
             DependsOn = new[] { cosmosDbSqlDatabase },
-            SiteConfig = new AppServiceSiteConfig
+            SiteConfig = new LinuxWebAppSiteConfig
             {
-                DotnetFrameworkVersion = "v8.0"
+                ApplicationStack = new LinuxWebAppSiteConfigApplicationStack()
+                {
+                    DotnetVersion = "v8.0"
+                }
             },
             AppSettings = new Dictionary<string, string>
             {
@@ -150,9 +152,10 @@ public class MainStack : TerraformStack
                 { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
                 { "COSMOS_DB", cosmosDbSqlDatabase.Name },
                 { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue },
-                { "HELLO_COFFEE_API_HOST", apiApp.DefaultSiteHostname }
+                { "HELLO_COFFEE_API_HOST", apiApp.DefaultHostname }
             }
         });
+
 
         // Add deployment slot for web api
         var webAppDeploymentSlot = new AppServiceSlot(this, "webAppDeploymentSlot", new AppServiceSlotConfig
@@ -171,13 +174,13 @@ public class MainStack : TerraformStack
         // Output the Web App URL
         new TerraformOutput(this, "WebAppUrl", new TerraformOutputConfig
         {
-            Value = webApp.DefaultSiteHostname
+            Value = webApp.DefaultHostname
         });
 
         // Output the API App URL
         new TerraformOutput(this, "ApiAppUrl", new TerraformOutputConfig
         {
-            Value = apiApp.DefaultSiteHostname
+            Value = apiApp.DefaultHostname
         });
     }
 }
