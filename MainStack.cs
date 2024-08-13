@@ -37,17 +37,17 @@ public class MainStack : TerraformStack
             Sensitive = true,
         });
 
+        const string resourceGroupId = "/subscriptions/50f420bb-8ac6-4659-a9d0-ad43633bd961/resourceGroups/helloCoffeeResourceGroup";
+
         var resourceGroup = new ResourceGroup(this, "resourceGroup", new ResourceGroupConfig
         {
-            Id = "/subscriptions/50f420bb-8ac6-4659-a9d0-ad43633bd961/resourceGroups/helloCoffeeResourceGroup",
             Location = "West Europe",
             Name = "helloCoffeeResourceGroup"
-        });
+        }).WithId(resourceGroupId);
 
         // Cosmos DB
         var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
         {
-            Id = $"{resourceGroup.Id}/providers/Microsoft.DocumentDB/databaseAccounts/hellocoffeedb",
             Name = "hellocoffeedb",
             Location = "Central US",
             ResourceGroupName = resourceGroup.Name,
@@ -68,7 +68,7 @@ public class MainStack : TerraformStack
                     FailoverPriority = 0
                 }
             }
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.DocumentDB/databaseAccounts/hellocoffeedb");
 
         var cosmosDbSqlDatabase = new CosmosdbSqlDatabase(this, "cosmosDbSqlDatabase", new CosmosdbSqlDatabaseConfig
         {
@@ -80,18 +80,16 @@ public class MainStack : TerraformStack
         // Service Plan for API App
         var apiAppServicePlan = new ServicePlan(this, "ApiAppServicePlan", new ServicePlanConfig
         {
-            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/serverFarms/apiAppServicePlan",
             Name = "apiAppServicePlan",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
             OsType = "Linux",
             SkuName = "S1"
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.Web/serverFarms/apiAppServicePlan");
 
         // API App
         var apiApp = new LinuxWebApp(this, "ApiApp", new LinuxWebAppConfig
         {
-            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApi",
             Name = "HelloCoffeeWebApi",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
@@ -110,13 +108,12 @@ public class MainStack : TerraformStack
                 { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
                 { "COSMOS_DB", cosmosDbSqlDatabase.Name }
             }
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.Web/sites/HelloCoffeeWebApi");
 
         // Add deployment slot for web app
         
         var webApiDeploymentSlot = new LinuxWebAppSlot(this, "webApiDeploymentSlot", new LinuxWebAppSlotConfig
         {
-            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApi/slots/staging",
             Name = "staging",
             AppServiceId = apiApp.Id,
             SiteConfig = new LinuxWebAppSlotSiteConfig
@@ -132,23 +129,21 @@ public class MainStack : TerraformStack
                 { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
                 { "COSMOS_DB", cosmosDbSqlDatabase.Name }
             }
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.Web/sites/HelloCoffeeWebApi/slots/staging");
 
         // Service Plan for Web App
         var webAppServicePlan = new ServicePlan(this, "WebAppServicePlan", new ServicePlanConfig
         {
-            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/serverFarms/webAppServicePlan",
             Name = "webAppServicePlan",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
             OsType = "Linux",
             SkuName = "S1"
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.Web/serverFarms/webAppServicePlan");
 
         // Web App
         var webApp = new LinuxWebApp(this, "WebApp", new LinuxWebAppConfig
         {
-            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApp",
             Name = "HelloCoffeeWebApp",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
@@ -169,12 +164,11 @@ public class MainStack : TerraformStack
                 { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue },
                 { "HELLO_COFFEE_API_HOST", apiApp.DefaultHostname }
             }
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.Web/sites/HelloCoffeeWebApp");
 
         // Add deployment slot for web api
         var webAppDeploymentSlot = new LinuxWebAppSlot(this, "webAppDeploymentSlot", new LinuxWebAppSlotConfig
         {
-            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApp/slots/staging",
             Name = "staging",
             AppServiceId = webApp.Id,
             SiteConfig = new LinuxWebAppSlotSiteConfig
@@ -192,7 +186,8 @@ public class MainStack : TerraformStack
                 { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue },
                 { "HELLO_COFFEE_API_HOST", apiApp.DefaultHostname }
             }
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.Web/sites/HelloCoffeeWebApp/slots/staging");
+
 
         // Output the Web App URL
         new TerraformOutput(this, "WebAppUrl", new TerraformOutputConfig
@@ -205,5 +200,12 @@ public class MainStack : TerraformStack
         {
             Value = apiApp.DefaultHostname
         });
+    }
+}
+
+public static class TerraformResourceExtendedMethods {
+    public static T WithId<T>(this T source, string resourceId) where T : TerraformResource {
+        source.ImportFrom(resourceId);
+        return source;
     }
 }
