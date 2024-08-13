@@ -39,6 +39,7 @@ public class MainStack : TerraformStack
 
         var resourceGroup = new ResourceGroup(this, "resourceGroup", new ResourceGroupConfig
         {
+            Id = "/subscriptions/50f420bb-8ac6-4659-a9d0-ad43633bd961/resourceGroups/helloCoffeeResourceGroup",
             Location = "West Europe",
             Name = "helloCoffeeResourceGroup"
         });
@@ -46,6 +47,7 @@ public class MainStack : TerraformStack
         // Cosmos DB
         var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
         {
+            Id = $"{resourceGroup.Id}/providers/Microsoft.DocumentDB/databaseAccounts/hellocoffeedb",
             Name = "hellocoffeedb",
             Location = "Central US",
             ResourceGroupName = resourceGroup.Name,
@@ -78,6 +80,7 @@ public class MainStack : TerraformStack
         // Service Plan for API App
         var apiAppServicePlan = new ServicePlan(this, "ApiAppServicePlan", new ServicePlanConfig
         {
+            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/serverFarms/apiAppServicePlan",
             Name = "apiAppServicePlan",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
@@ -88,6 +91,7 @@ public class MainStack : TerraformStack
         // API App
         var apiApp = new LinuxWebApp(this, "ApiApp", new LinuxWebAppConfig
         {
+            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApi",
             Name = "HelloCoffeeWebApi",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
@@ -112,6 +116,7 @@ public class MainStack : TerraformStack
         
         var webApiDeploymentSlot = new LinuxWebAppSlot(this, "webApiDeploymentSlot", new LinuxWebAppSlotConfig
         {
+            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApi/slots/staging",
             Name = "staging",
             AppServiceId = apiApp.Id,
             SiteConfig = new LinuxWebAppSlotSiteConfig
@@ -120,12 +125,19 @@ public class MainStack : TerraformStack
                 {
                     DotnetVersion = "8.0"
                 }
+            },
+            AppSettings = new Dictionary<string, string>
+            {
+                { "COSMOS_ENDPOINT", cosmosDbAccount.Endpoint },
+                { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
+                { "COSMOS_DB", cosmosDbSqlDatabase.Name }
             }
         });
 
         // Service Plan for Web App
         var webAppServicePlan = new ServicePlan(this, "WebAppServicePlan", new ServicePlanConfig
         {
+            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/serverFarms/webAppServicePlan",
             Name = "webAppServicePlan",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
@@ -136,6 +148,7 @@ public class MainStack : TerraformStack
         // Web App
         var webApp = new LinuxWebApp(this, "WebApp", new LinuxWebAppConfig
         {
+            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApp",
             Name = "HelloCoffeeWebApp",
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
@@ -161,6 +174,7 @@ public class MainStack : TerraformStack
         // Add deployment slot for web api
         var webAppDeploymentSlot = new LinuxWebAppSlot(this, "webAppDeploymentSlot", new LinuxWebAppSlotConfig
         {
+            Id = $"{resourceGroup.Id}/providers/Microsoft.Web/sites/HelloCoffeeWebApp/slots/staging",
             Name = "staging",
             AppServiceId = webApp.Id,
             SiteConfig = new LinuxWebAppSlotSiteConfig
@@ -169,6 +183,14 @@ public class MainStack : TerraformStack
                 {
                     DotnetVersion = "8.0"
                 }
+            },
+            AppSettings = new Dictionary<string, string>
+            {
+                { "COSMOS_ENDPOINT", cosmosDbAccount.Endpoint },
+                { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
+                { "COSMOS_DB", cosmosDbSqlDatabase.Name },
+                { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue },
+                { "HELLO_COFFEE_API_HOST", apiApp.DefaultHostname }
             }
         });
 
