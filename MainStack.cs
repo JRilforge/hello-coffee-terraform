@@ -146,6 +146,7 @@ public class MainStack : TerraformStack
             ResourceGroupName = resourceGroup.Name,
             AppServicePlanId = webAppServicePlan.Id,
             AppServiceName = webApp.Name,
+            Location = resourceGroup.Location,
             SiteConfig = new AppServiceSlotSiteConfig
             {
                 DotnetFrameworkVersion = "v8.0"
@@ -159,6 +160,7 @@ public class MainStack : TerraformStack
             ResourceGroupName = resourceGroup.Name,
             AppServicePlanId = apiAppServicePlan.Id,
             AppServiceName = apiApp.Name,
+            Location = resourceGroup.Location,
             SiteConfig = new AppServiceSlotSiteConfig
             {
                 DotnetFrameworkVersion = "v8.0"
