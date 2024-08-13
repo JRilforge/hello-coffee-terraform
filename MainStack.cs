@@ -72,40 +72,6 @@ public class MainStack : TerraformStack
             AccountName = cosmosDbAccount.Name
         });
 
-        // App Service Plan for Web App
-        var webAppServicePlan = new AppServicePlan(this, "WebAppServicePlan", new AppServicePlanConfig
-        {
-            Name = "webAppServicePlan",
-            Location = resourceGroup.Location,
-            ResourceGroupName = resourceGroup.Name,
-            Sku = new AppServicePlanSku
-            {
-                Tier = "Standard",
-                Size = "S1"
-            }
-        });
-
-        // Web App
-        var webApp = new AppService(this, "WebApp", new AppServiceConfig
-        {
-            Name = "HelloCoffeeWebApp",
-            Location = resourceGroup.Location,
-            ResourceGroupName = resourceGroup.Name,
-            AppServicePlanId = webAppServicePlan.Id,
-            DependsOn = new[] { cosmosDbSqlDatabase },
-            SiteConfig = new AppServiceSiteConfig
-            {
-                DotnetFrameworkVersion = "v8.0"
-            },
-            AppSettings = new Dictionary<string, string>
-            {
-                { "COSMOS_ENDPOINT", cosmosDbAccount.Endpoint },
-                { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
-                { "COSMOS_DB", cosmosDbSqlDatabase.Name },
-                { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue }
-            }
-        });
-
         // App Service Plan for API App
         var apiAppServicePlan = new AppServicePlan(this, "ApiAppServicePlan", new AppServicePlanConfig
         {
@@ -139,13 +105,13 @@ public class MainStack : TerraformStack
             }
         });
 
-        // Add deployment slot for web api
-        var webAppDeploymentSlot = new AppServiceSlot(this, "webAppDeploymentSlot", new AppServiceSlotConfig
+        // Add deployment slot for web app
+        var webApiDeploymentSlot = new AppServiceSlot(this, "webApiDeploymentSlot", new AppServiceSlotConfig
         {
             Name = "production",
             ResourceGroupName = resourceGroup.Name,
-            AppServicePlanId = webAppServicePlan.Id,
-            AppServiceName = webApp.Name,
+            AppServicePlanId = apiAppServicePlan.Id,
+            AppServiceName = apiApp.Name,
             Location = resourceGroup.Location,
             SiteConfig = new AppServiceSlotSiteConfig
             {
@@ -153,13 +119,48 @@ public class MainStack : TerraformStack
             }
         });
 
-        // Add deployment slot for web app
-        var webApiDeploymentSlot = new AppServiceSlot(this, "webAppDeploymentSlot", new AppServiceSlotConfig
+        // App Service Plan for Web App
+        var webAppServicePlan = new AppServicePlan(this, "WebAppServicePlan", new AppServicePlanConfig
+        {
+            Name = "webAppServicePlan",
+            Location = resourceGroup.Location,
+            ResourceGroupName = resourceGroup.Name,
+            Sku = new AppServicePlanSku
+            {
+                Tier = "Standard",
+                Size = "S1"
+            }
+        });
+
+        // Web App
+        var webApp = new AppService(this, "WebApp", new AppServiceConfig
+        {
+            Name = "HelloCoffeeWebApp",
+            Location = resourceGroup.Location,
+            ResourceGroupName = resourceGroup.Name,
+            AppServicePlanId = webAppServicePlan.Id,
+            DependsOn = new[] { cosmosDbSqlDatabase },
+            SiteConfig = new AppServiceSiteConfig
+            {
+                DotnetFrameworkVersion = "v8.0"
+            },
+            AppSettings = new Dictionary<string, string>
+            {
+                { "COSMOS_ENDPOINT", cosmosDbAccount.Endpoint },
+                { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
+                { "COSMOS_DB", cosmosDbSqlDatabase.Name },
+                { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue },
+                { "HELLO_COFFEE_API_HOST", apiApp.DefaultSiteHostname }
+            }
+        });
+
+        // Add deployment slot for web api
+        var webAppDeploymentSlot = new AppServiceSlot(this, "webAppDeploymentSlot", new AppServiceSlotConfig
         {
             Name = "production",
             ResourceGroupName = resourceGroup.Name,
-            AppServicePlanId = apiAppServicePlan.Id,
-            AppServiceName = apiApp.Name,
+            AppServicePlanId = webAppServicePlan.Id,
+            AppServiceName = webApp.Name,
             Location = resourceGroup.Location,
             SiteConfig = new AppServiceSlotSiteConfig
             {
