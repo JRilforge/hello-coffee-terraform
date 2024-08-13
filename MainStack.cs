@@ -2,6 +2,7 @@
 // AZURE_CREDENTIALS - https://success.skyhighsecurity.com/Skyhigh_CASB/Skyhigh_CASB_Sanctioned_Apps/Skyhigh_CASB_for_Office_365/Service_Principal_with_a_Secret_Key_and_Azure_API_Integration#:~:text=An%20Azure%20Service%20Principal%20is,and%20use%20it%20to%20authenticate.
 // create resource group - https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal
 
+using HashiCorp.Cdktf.Providers.Azurerm.LinuxWebAppSlot;
 using HashiCorp.Cdktf.Providers.Azurerm.Provider;
 using HashiCorp.Cdktf.Providers.Azurerm.ServicePlan;
 
@@ -108,16 +109,17 @@ public class MainStack : TerraformStack
         });
 
         // Add deployment slot for web app
-        var webApiDeploymentSlot = new AppServiceSlot(this, "webApiDeploymentSlot", new AppServiceSlotConfig
+        
+        var webApiDeploymentSlot = new LinuxWebAppSlot(this, "webApiDeploymentSlot", new LinuxWebAppSlotConfig
         {
             Name = "production",
-            ResourceGroupName = resourceGroup.Name,
-            AppServicePlanId = apiAppServicePlan.Id,
-            AppServiceName = apiApp.Name,
-            Location = resourceGroup.Location,
-            SiteConfig = new AppServiceSlotSiteConfig
+            AppServiceId = apiApp.Id,
+            SiteConfig = new LinuxWebAppSlotSiteConfig
             {
-                DotnetFrameworkVersion = "8.0"
+                ApplicationStack = new LinuxWebAppSlotSiteConfigApplicationStack()
+                {
+                    DotnetVersion = "8.0"
+                }
             }
         });
 
@@ -143,7 +145,7 @@ public class MainStack : TerraformStack
             {
                 ApplicationStack = new LinuxWebAppSiteConfigApplicationStack()
                 {
-                    DotnetVersion = "v8.0"
+                    DotnetVersion = "8.0"
                 }
             },
             AppSettings = new Dictionary<string, string>
@@ -156,18 +158,17 @@ public class MainStack : TerraformStack
             }
         });
 
-
         // Add deployment slot for web api
-        var webAppDeploymentSlot = new AppServiceSlot(this, "webAppDeploymentSlot", new AppServiceSlotConfig
+        var webAppDeploymentSlot = new LinuxWebAppSlot(this, "webAppDeploymentSlot", new LinuxWebAppSlotConfig
         {
             Name = "production",
-            ResourceGroupName = resourceGroup.Name,
-            AppServicePlanId = webAppServicePlan.Id,
-            AppServiceName = webApp.Name,
-            Location = resourceGroup.Location,
-            SiteConfig = new AppServiceSlotSiteConfig
+            AppServiceId = webApp.Id,
+            SiteConfig = new LinuxWebAppSlotSiteConfig
             {
-                DotnetFrameworkVersion = "v8.0"
+                ApplicationStack = new LinuxWebAppSlotSiteConfigApplicationStack()
+                {
+                    DotnetVersion = "8.0"
+                }
             }
         });
 
