@@ -40,13 +40,13 @@ public class MainStack : TerraformStack
         var resourceGroup = new ResourceGroup(this, "resourceGroup", new ResourceGroupConfig
         {
             Location = "West Europe",
-            Name = "helloCoffeeResourceGroup"
+            Name = "helloCoffeeResGroup"
         });
 
         // Cosmos DB
         var cosmosDbAccount = new CosmosdbAccount(this, "CosmosDbAccount", new CosmosdbAccountConfig
         {
-            Name = "hellocoffeedb",
+            Name = "hellocoffeeshopdb",
             Location = "Central US",
             ResourceGroupName = resourceGroup.Name,
             OfferType = "Standard",
@@ -82,7 +82,7 @@ public class MainStack : TerraformStack
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
             OsType = "Linux",
-            SkuName = "P1v2"
+            SkuName = "S1"
         });
 
         // API App
@@ -130,7 +130,7 @@ public class MainStack : TerraformStack
             Location = resourceGroup.Location,
             ResourceGroupName = resourceGroup.Name,
             OsType = "Linux",
-            SkuName = "P1v2"
+            SkuName = "S1"
         });
 
         // Web App
