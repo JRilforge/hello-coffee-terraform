@@ -75,7 +75,7 @@ public class MainStack : TerraformStack
             Name = "HelloCoffeeDb",
             ResourceGroupName = resourceGroup.Name,
             AccountName = cosmosDbAccount.Name
-        });
+        }).WithId($"{resourceGroupId}/providers/Microsoft.DocumentDB/databaseAccounts/hellocoffeedb/sqlDatabases/HelloCoffeeDb");
 
         // Service Plan for API App
         var apiAppServicePlan = new ServicePlan(this, "ApiAppServicePlan", new ServicePlanConfig
