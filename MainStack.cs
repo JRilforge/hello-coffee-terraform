@@ -162,7 +162,7 @@ public class MainStack : TerraformStack
                 { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
                 { "COSMOS_DB", cosmosDbSqlDatabase.Name },
                 { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue },
-                { "HELLO_COFFEE_API_HOST", apiApp.DefaultHostname }
+                { "HELLO_COFFEE_API_HOST", webApiDeploymentSlot.DefaultHostname }
             }
         }).WithId($"{resourceGroupId}/providers/Microsoft.Web/sites/HelloCoffeeWebApp");
 
@@ -184,7 +184,7 @@ public class MainStack : TerraformStack
                 { "COSMOS_KEY", cosmosDbAccount.PrimaryKey },
                 { "COSMOS_DB", cosmosDbSqlDatabase.Name },
                 { "PLAYWRIGHT_USER_PASSWORD", playwrightUserPassword.StringValue },
-                { "HELLO_COFFEE_API_HOST", apiApp.DefaultHostname }
+                { "HELLO_COFFEE_API_HOST", webApiDeploymentSlot.DefaultHostname }
             }
         }).WithId($"{resourceGroupId}/providers/Microsoft.Web/sites/HelloCoffeeWebApp/slots/staging");
 
